@@ -8,16 +8,17 @@
 
 ## Требования
 
-- Python 2.7
-- - python-telegram-bot
-- - vk_api
-- Телеграм бот
+* Python 2.7
+* * python-telegram-bot
+* * vk_api
+* * PyYAML
+* Телеграм бот
 
 ## Установка
 
 ```bash
 git clone https://github.com/shanginn/bot_memaser && cd bot_memaser
-sudo pip install python-telegram-bot vk_api --upgrade
+sudo pip install python-telegram-bot vk_api pyyaml --upgrade
 ```
 
 ## Настройка
