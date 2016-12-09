@@ -16,7 +16,7 @@
 ## Установка
 
 ```bash
-git clone https://github.com/shanginn/vk_auto_poster && cd vk_auto_poster
+git clone https://github.com/shanginn/bot_memaser && cd bot_memaser
 sudo pip install python-telegram-bot vk_api --upgrade
 ```
 
