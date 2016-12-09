@@ -56,6 +56,17 @@ mv config.yml.dist config.yml
 python bot.py
 ```
 
+## Проблемы?
+
+Если никаких ошибок нет, значит работает.
+
+Если пишет `InsecurePlatformWarning: A true SSLContext object is not available.`,
+значит нужно pip'ом доставить, или обновить `requests[security]`.
+
+Если преблемы с предыдущим пунктом и вы на убунте, то `apt-get install libffi-dev libssl-dev`
+
+Если и это не помогло, то поставьте себе Python 2.7.9
+
 ## TODO
 
 - Не знаю, возможно ли, но было бы здорово сделать постинг без использования

@@ -16,7 +16,7 @@ import vk_api
 class VKM:
     def auth_handler(self):
         # Если у вас включена 2-х факторная авторизация,
-        # то при первом запуске нужно ввести код
+        # то при запуске нужно вводить код
         two_FA_code = int(raw_input("Please enter 2FA code: "))
 
         return two_FA_code, True
