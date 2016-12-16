@@ -50,28 +50,31 @@ def error(bot, update, error):
 
 
 def upload_image(bot, update):
-    if update.message.photo:
-        # Получаем фотку наилучшего качества(последнюю в массиве)
-        photo = update.message.photo[-1]
+    try:
+        if update.message.photo:
+            # Получаем фотку наилучшего качества(последнюю в массиве)
+            photo = update.message.photo[-1]
 
-        # Описание к фотке
-        caption = update.message['caption']
+            # Описание к фотке
+            caption = update.message['caption']
 
 
-        # url фото на сервере Telegram
-        image_url = bot.getFile(photo['file_id'])['file_path']
+            # url фото на сервере Telegram
+            image_url = bot.getFile(photo['file_id'])['file_path']
 
-        # Имя файла с корректным расширением из url
-        filename = urlparse.urlsplit(image_url.strip()).path.split('/')[-1]
+            # Имя файла с корректным расширением из url
+            filename = urlparse.urlsplit(image_url.strip()).path.split('/')[-1]
 
-        # Загружаем фотку на диск
-        urllib.urlretrieve(image_url, filename)
+            # Загружаем фотку на диск
+            urllib.urlretrieve(image_url, filename)
 
-        # Загружаем фотку на стену группы Вконтакте
-        manager.upload_image(filename, caption)
+            # Загружаем фотку на стену группы Вконтакте
+            manager.upload_image(filename, caption)
 
-        # Удаляем фотку
-        os.remove(filename)
+            # Удаляем фотку
+            os.remove(filename)
+    except Exception:
+        pass
 
 
 def main():
