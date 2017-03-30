@@ -17,18 +17,30 @@ class VKM:
     def auth_handler(self):
         # Если у вас включена 2-х факторная авторизация,
         # то при запуске нужно вводить код
-        two_FA_code = int(raw_input("Please enter 2FA code: "))
+        while True:
+            try:
+                two_FA_code = int(raw_input("Please enter 2FA code: "))
+            except ValueError:
+                print("Wrong input")
+                continue
+            else:
+                break
 
         return two_FA_code, True
 
     def __init__(self, login, password, group_id):
-        vk_session = vk_api.VkApi(login, password, auth_handler=self.auth_handler)
+        for i in range(1,4):
+            try:
+                vk_session = vk_api.VkApi(login, password, auth_handler=self.auth_handler)
 
-        try:
-            vk_session.authorization()
-        except vk_api.AuthorizationError as error_msg:
-            print(error_msg)
-            sys.exit()
+                vk_session.auth()
+            except vk_api.AuthError as error_msg:
+                print error_msg
+
+                if i > 3:
+                    sys.exit()
+            else:
+                continue
 
         self.vk_session = vk_session
         self.group_id = group_id
