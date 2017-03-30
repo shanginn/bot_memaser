@@ -82,7 +82,7 @@ def handle_url(url, caption = ''):
     elif extension == 'gif':
         manager.post_gif_from_url(url, caption)
     else:
-        pass#return manager.post_to_wall(caption, url)
+        return manager.post_to_wall(caption, url)
 
 def main():
     print "Starting updater..."
