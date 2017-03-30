@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 
-import vk_api
+import vk_api, sys
 
 """
 Менеджер Вконтакте.
@@ -28,7 +28,7 @@ class VKM:
             vk_session.authorization()
         except vk_api.AuthorizationError as error_msg:
             print(error_msg)
-            return
+            sys.exit()
 
         self.vk_session = vk_session
         self.group_id = group_id

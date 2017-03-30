@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 try:
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile)
+        print "Config loaded"
 except BaseException:
     print "config.yml file is not exists! Please create it first."
     sys.exit()
@@ -39,7 +40,6 @@ if config['vk-group-id'] == '':
 
 
 manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'])
-
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -78,12 +78,14 @@ def upload_image(bot, update):
 
 
 def main():
+    print "Starting updater..."
     updater = Updater(config['telegram-token'])
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     #dp.add_handler(CommandHandler("help", start))
+    print "Adding handlers..."
     dp.add_handler(MessageHandler(False, upload_image))
     # log all errors
     dp.add_error_handler(error)
@@ -94,6 +96,7 @@ def main():
     # Block until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
+    print "idle."
     updater.idle()
 
 
