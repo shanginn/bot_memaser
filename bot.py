@@ -3,8 +3,10 @@
 #
 
 from telegram.ext import Updater, MessageHandler
-import logging, yaml, sys, os, urllib, urlparse
+import logging, yaml, sys, os, urlparse
 from vk_manager import VKM
+import urlmarker, re
+import traceback
 
 # Enable logging
 logging.basicConfig(
@@ -49,7 +51,7 @@ def error(bot, update, error):
     # )
 
 
-def upload_image(bot, update):
+def handle_message(bot, update):
     try:
         if update.message.photo:
             # Получаем фотку наилучшего качества(последнюю в массиве)
@@ -58,24 +60,29 @@ def upload_image(bot, update):
             # Описание к фотке
             caption = update.message['caption']
 
-
             # url фото на сервере Telegram
             image_url = bot.getFile(photo['file_id'])['file_path']
 
-            # Имя файла с корректным расширением из url
-            filename = urlparse.urlsplit(image_url.strip()).path.split('/')[-1]
+            return manager.post_image_from_url(image_url, caption)
+        elif update.message.text:
+            # Если в сообщении были ссылки
+            for url in extract_urls(update.message.text):
+                handle_url(url)
 
-            # Загружаем фотку на диск
-            urllib.urlretrieve(image_url, filename)
-
-            # Загружаем фотку на стену группы Вконтакте
-            manager.upload_image(filename, caption)
-
-            # Удаляем фотку
-            os.remove(filename)
     except Exception:
-        pass
+        traceback.print_exc()
 
+def handle_url(url, caption = ''):
+    # Расширение файла из url
+    extension = urlparse.urlsplit(url.strip()).path.split('/')[-1].split('.')[-1]
+
+    # Проверка на изображение
+    if extension in ['jpg', 'png']:
+        return manager.post_image_from_url(url, caption)
+    elif extension == 'gif':
+        manager.post_gif_from_url(url, caption)
+    else:
+        pass#return manager.post_to_wall(caption, url)
 
 def main():
     print "Starting updater..."
@@ -86,7 +93,7 @@ def main():
 
     #dp.add_handler(CommandHandler("help", start))
     print "Adding handlers..."
-    dp.add_handler(MessageHandler(False, upload_image))
+    dp.add_handler(MessageHandler(False, handle_message))
     # log all errors
     dp.add_error_handler(error)
 
@@ -98,6 +105,9 @@ def main():
     # start_polling() is non-blocking and will stop the bot gracefully.
     print "idle."
     updater.idle()
+
+def extract_urls(text):
+    return re.findall(urlmarker.WEB_URL_REGEX,text)
 
 
 if __name__ == '__main__':
