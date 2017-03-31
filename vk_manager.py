@@ -39,7 +39,7 @@ class VKM:
             except vk_api.AuthError as error_msg:
                 print error_msg
 
-                if i > 3:
+                if i => 3:
                     sys.exit()
             else:
                 continue
