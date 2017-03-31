@@ -33,7 +33,7 @@ class VKM:
 
         for i in range(1,4):
             try:
-                vk_session = vk_api.VkApi(login, password, auth_handler=self.auth_handler, app_id=None)
+                vk_session = vk_api.VkApi(login, password, auth_handler=self.auth_handler, app_id=5958197)
 
                 vk_session.auth()
             except vk_api.AuthError as error_msg:
