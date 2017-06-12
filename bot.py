@@ -39,7 +39,7 @@ if config['vk-group-id'] == '':
     print "Please add Vkontakte group id"
     sys.exit()
 
-manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'], config['video-album-id'])
+manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'], config['video-album-id'] or None)
 
 
 def error(bot, update, error):
