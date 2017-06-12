@@ -28,7 +28,7 @@ class VKM:
 
         return two_FA_code, True
 
-    def __init__(self, login, password, group_id):
+    def __init__(self, login, password, group_id, video_album_id=None):
         self.allowed_image_extensions = ['.jpg', '.gif', '.png']
 
         for i in range(1,4):
@@ -46,12 +46,20 @@ class VKM:
 
         self.vk_session = vk_session
         self.group_id = group_id
+        self.video_album_id = video_album_id
         self.api = self.vk_session.get_api()
         self.upload = vk_api.VkUpload(self.vk_session)
 
     def upload_images_to_wall(self, paths):
         return self.upload.photo_wall(
             paths,
+            group_id=self.group_id
+        )
+
+    def upload_video_to_wall(self, video):
+        return self.upload.video(
+            video=video,
+            wallpost=True,
             group_id=self.group_id
         )
 
@@ -73,7 +81,7 @@ class VKM:
         # И запостить на стену группы
         return self.post_to_wall(caption, attachments)
 
-    def post_image_from_url(self, url, caption = ''):
+    def post_image_from_url(self, url, caption=''):
         # Загружаем фотку на диск
         filepath, filename, extension, headers = self.get_url(url)
 
@@ -90,7 +98,7 @@ class VKM:
 
         return status
 
-    def post_gif_from_url(self, url, caption):
+    def post_gif_from_url(self, url, caption=''):
         filepath, filename, extension, headers = self.get_url(url)
 
         if extension != '.gif':
@@ -103,6 +111,14 @@ class VKM:
         os.remove(filepath)
 
         return status
+
+    def post_video_from_url(self, url, caption=''):
+        return self.upload.video(
+            video=url,
+            wallpost=True,
+            group_id=self.group_id,
+            album_id=self.video_album_id
+        )
 
     def post_document(self, filepath, caption):
         # Сначала нужно загрузть фотку на сервера ВК

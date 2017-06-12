@@ -18,7 +18,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-
 # Читаем конфиги
 try:
     with open("config.yml", 'r') as ymlfile:
@@ -40,8 +39,8 @@ if config['vk-group-id'] == '':
     print "Please add Vkontakte group id"
     sys.exit()
 
+manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'], config['video-album-id'])
 
-manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'])
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -72,7 +71,22 @@ def handle_message(bot, update):
     except Exception:
         traceback.print_exc()
 
-def handle_url(url, caption = ''):
+
+def handle_url(url, caption=''):
+    # Если это ссылка на видео
+    if any(video_platform in url for video_platform in config['supported-video-platforms']):
+        video = manager.post_video_from_url(url, caption)
+
+        if config['video-album-id']:
+            return manager.upload.vk.method('video.addToAlbum', {
+                'target_id': '-%d' % config['vk-group-id'],
+                'album_id': '-2',
+                'owner_id': '-%d' % config['vk-group-id'],
+                'video_id': video['video_id']
+            })
+        else:
+            return video
+
     # Расширение файла из url
     extension = urlparse.urlsplit(url.strip()).path.split('/')[-1].split('.')[-1]
 
@@ -80,9 +94,10 @@ def handle_url(url, caption = ''):
     if extension in ['jpg', 'png']:
         return manager.post_image_from_url(url, caption)
     elif extension == 'gif':
-        manager.post_gif_from_url(url, caption)
-    else:
-        return manager.post_to_wall(caption, url)
+        return manager.post_gif_from_url(url, caption)
+
+    return manager.post_to_wall(caption, url)
+
 
 def main():
     print "Starting updater..."
@@ -105,6 +120,7 @@ def main():
     # start_polling() is non-blocking and will stop the bot gracefully.
     print "idle."
     updater.idle()
+
 
 def extract_urls(text):
     return re.findall(urlmarker.WEB_URL_REGEX,text)

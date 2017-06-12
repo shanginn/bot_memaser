@@ -6,4 +6,15 @@ vk-group-id:
       
 # VK group admin login and password       
 vk-login:     
-vk-password: 
+vk-password:
+
+# Поддерживаемые видеоплатформы (для загрузки видео на стену)
+supported-video-platforms:
+  - youtube.com
+  - vimeo.com
+  - youtu.be
+  - coub.com
+  - rutube.ru
+
+# ID видео альбома, в который будут добавляться загруженные видео
+video-album-id:
