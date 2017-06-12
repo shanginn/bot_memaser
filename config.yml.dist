@@ -15,6 +15,3 @@ supported-video-platforms:
   - youtu.be
   - coub.com
   - rutube.ru
-
-# ID видео альбома, в который будут добавляться загруженные видео
-video-album-id:

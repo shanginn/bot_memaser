@@ -28,7 +28,7 @@ class VKM:
 
         return two_FA_code, True
 
-    def __init__(self, login, password, group_id, video_album_id=None):
+    def __init__(self, login, password, group_id):
         self.allowed_image_extensions = ['.jpg', '.gif', '.png']
 
         for i in range(1,4):
@@ -46,7 +46,6 @@ class VKM:
 
         self.vk_session = vk_session
         self.group_id = group_id
-        self.video_album_id = video_album_id
         self.api = self.vk_session.get_api()
         self.upload = vk_api.VkUpload(self.vk_session)
 
@@ -116,8 +115,7 @@ class VKM:
         return self.upload.video(
             video=url,
             wallpost=True,
-            group_id=self.group_id,
-            album_id=self.video_album_id
+            group_id=self.group_id
         )
 
     def post_document(self, filepath, caption):

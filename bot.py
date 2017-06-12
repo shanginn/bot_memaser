@@ -39,7 +39,7 @@ if config['vk-group-id'] == '':
     print "Please add Vkontakte group id"
     sys.exit()
 
-manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'], config['video-album-id'] or None)
+manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'])
 
 
 def error(bot, update, error):
@@ -77,15 +77,14 @@ def handle_url(url, caption=''):
     if any(video_platform in url for video_platform in config['supported-video-platforms']):
         video = manager.post_video_from_url(url, caption)
 
-        if config['video-album-id']:
-            return manager.upload.vk.method('video.addToAlbum', {
-                'target_id': '-%d' % config['vk-group-id'],
-                'album_id': '-2',
-                'owner_id': '-%d' % config['vk-group-id'],
-                'video_id': video['video_id']
-            })
-        else:
-            return video
+        manager.upload.vk.method('video.addToAlbum', {
+            'target_id': '-%d' % config['vk-group-id'],
+            'album_id': '-2',
+            'owner_id': '-%d' % config['vk-group-id'],
+            'video_id': video['video_id']
+        })
+
+        return video
 
     # Расширение файла из url
     extension = urlparse.urlsplit(url.strip()).path.split('/')[-1].split('.')[-1]
