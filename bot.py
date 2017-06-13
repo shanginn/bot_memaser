@@ -41,7 +41,6 @@ if config['vk-group-id'] == '':
 
 manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'])
 
-
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
     # bot.sendMessage(

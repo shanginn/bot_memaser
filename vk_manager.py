@@ -57,7 +57,7 @@ class VKM:
 
     def upload_video_to_wall(self, video):
         return self.upload.video(
-            video=video,
+            video_file=video,
             wallpost=True,
             group_id=self.group_id
         )
@@ -113,7 +113,7 @@ class VKM:
 
     def post_video_from_url(self, url, caption=''):
         return self.upload.video(
-            video=url,
+            link=url,
             wallpost=True,
             group_id=self.group_id
         )
