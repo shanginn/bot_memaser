@@ -3,3 +3,5 @@ config.yml
 .idea
 *.pyc
 vk_config.json
+history.db
+vk_config.v2.json

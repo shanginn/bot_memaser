@@ -8,10 +8,9 @@ vk-group-id:
 vk-login:     
 vk-password:
 
-# Поддерживаемые видеоплатформы (для загрузки видео на стену)
-supported-video-platforms:
-  - youtube.com
-  - vimeo.com
-  - youtu.be
-  - coub.com
-  - rutube.ru
+# SOCKS5 proxy settings
+socks5-proxy:
+  address:
+  port:
+  username:
+  password:

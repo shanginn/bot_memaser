@@ -3,10 +3,15 @@
 #
 
 from telegram.ext import Updater, MessageHandler
-import logging, yaml, sys, os, urlparse
 from vk_manager import VKM
-import urlmarker, re
 import traceback
+import urlmarker
+import logging
+import sqlite3
+import yaml
+import sys
+import re
+import os
 
 # Enable logging
 logging.basicConfig(
@@ -22,27 +27,33 @@ logger = logging.getLogger(__name__)
 try:
     with open("config.yml", 'r') as ymlfile:
         config = yaml.load(ymlfile)
-        print "Config loaded"
+        print("Config loaded")
 except BaseException:
-    print "config.yml file is not exists! Please create it first."
+    print("config.yml file is not exists! Please create it first.")
     sys.exit()
 
 if config['telegram-token'] == '':
-    print "Please configure your Telegram bot token"
+    print("Please configure your Telegram bot token")
     sys.exit()
 
 if config['vk-login'] == '' or config['vk-password'] == '':
-    print "Please add your Vkontakte credentials"
+    print("Please add your Vkontakte credentials")
     sys.exit()
 
 if config['vk-group-id'] == '':
-    print "Please add Vkontakte group id"
+    print("Please add Vkontakte group id")
     sys.exit()
 
-manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'])
+proxy = None
+if config['socks5-proxy']['address'] and config['socks5-proxy']['port']:
+    proxy = config['socks5-proxy']
+
+manager = VKM(config['vk-login'], config['vk-password'], config['vk-group-id'], proxy)
+url_regexp = re.compile(urlmarker.WEB_URL_REGEX)
+db = sqlite3.connect('history.db').cursor()
 
 def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
+    logger.warning('Update "%s" caused error "%s"' % (update, error))
     # bot.sendMessage(
     #     update.message.chat_id,
     #     text='Update "%s" caused error "%s"' % (update, error)
@@ -51,62 +62,59 @@ def error(bot, update, error):
 
 def handle_message(bot, update):
     try:
-        if update.message.photo:
-            # Получаем фотку наилучшего качества(последнюю в массиве)
-            photo = update.message.photo[-1]
+        url, caption = parse_message(bot, update.message)
+        if url:
+            response = manager.handle_url(url, caption)
 
-            # Описание к фотке
-            caption = update.message['caption']
-
-            # url фото на сервере Telegram
-            image_url = bot.getFile(photo['file_id'])['file_path']
-
-            return manager.post_image_from_url(image_url, caption)
-        elif update.message.text:
-            # Если в сообщении были ссылки
-            for url in extract_urls(update.message.text):
-                handle_url(url)
-
+            if 'post_id' in response:
+                #TODO: record actions in database
+                print(response, update)
+            return response
     except Exception:
         traceback.print_exc()
 
 
-def handle_url(url, caption=''):
-    # Если это ссылка на видео
-    if any(video_platform in url for video_platform in config['supported-video-platforms']):
-        video = manager.post_video_from_url(url, caption)
+def parse_message(bot, message):
+    if message.photo:
+        # Получаем фотку наилучшего качества(последнюю в массиве)
+        photo = message.photo[-1]
 
-        manager.upload.vk.method('video.addToAlbum', {
-            'target_id': '-%d' % config['vk-group-id'],
-            'album_id': '-2',
-            'owner_id': '-%d' % config['vk-group-id'],
-            'video_id': video['video_id']
-        })
+        # Описание к фотке
+        caption = message['caption']
 
-        return video
+        # url фото на сервере Telegram
+        image_url = bot.getFile(photo['file_id'])['file_path']
 
-    # Расширение файла из url
-    extension = urlparse.urlsplit(url.strip()).path.split('/')[-1].split('.')[-1]
+        return image_url, caption
+    elif message.text:
+        # Если в сообщении были ссылки
+        matches = url_regexp.split(message.text)[1:]
 
-    # Проверка на изображение
-    if extension in ['jpg', 'png']:
-        return manager.post_image_from_url(url, caption)
-    elif extension == 'gif':
-        return manager.post_gif_from_url(url, caption)
+        if matches:
+            urls_with_captions = list(zip(*[matches[i::2] for i in range(2)]))
+            # TODO: handle multiple links in one message
+            return urls_with_captions[0]
 
-    return manager.post_to_wall(caption, url)
+    return False, False
 
 
 def main():
-    print "Starting updater..."
-    updater = Updater(config['telegram-token'])
+    print("Starting updater...")
+    updater = Updater(
+        config['telegram-token'],
+        request_kwargs={
+            'proxy_url': 'socks5://%s:%d/' % (proxy['address'], proxy['port']),
+            'urllib3_proxy_kwargs': {'username': proxy['username'], 'password': proxy['password']}
+        } if proxy else None,
+    )
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     #dp.add_handler(CommandHandler("help", start))
-    print "Adding handlers..."
+    print("Adding handlers...")
     dp.add_handler(MessageHandler(False, handle_message))
+
     # log all errors
     dp.add_error_handler(error)
 
@@ -116,12 +124,8 @@ def main():
     # Block until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
-    print "idle."
+    print("idle.")
     updater.idle()
-
-
-def extract_urls(text):
-    return re.findall(urlmarker.WEB_URL_REGEX,text)
 
 
 if __name__ == '__main__':

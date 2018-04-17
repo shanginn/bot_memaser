@@ -7,6 +7,10 @@
 Больше ржаки богу мемасиков!
 
 ## Список изменений
+*17.04.2018:*
+- Обновление до Python 3.6
+- Возможность использовать прокси
+- Можно добавлять описание к гифкам (через пробел после ссылки)
 
 *13.06.2017:*
 - Добавлен список изменений!
@@ -14,17 +18,18 @@
 
 ## Требования
 
-* Python 2.7
+* Python 3.6
 * * python-telegram-bot
 * * vk_api
 * * PyYAML
+* * PySocks
 * Телеграм бот
 
 ## Установка
 
 ```bash
 git clone https://github.com/shanginn/bot_memaser && cd bot_memaser
-sudo pip install python-telegram-bot vk_api pyyaml --upgrade
+pip install -r requirements.txt
 ```
 
 ## Настройка
