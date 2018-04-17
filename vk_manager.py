@@ -146,7 +146,7 @@ class VKM:
         )
 
     def get_url(self, url):
-        filepath, headers = urllib.request.urlretrieve(url, tempfile.gettempdir() + url.split('/')[-1])
+        filepath, headers = urllib.request.urlretrieve(url, tempfile.gettempdir() + '/' + url.split('/')[-1])
         extension = imghdr.what(filepath)
 
         return filepath, extension
